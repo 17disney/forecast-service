@@ -1,0 +1,9 @@
+_notes
+*.log
+.DS_Store
+node_modules
+config/config.*.js
+logs
+run
+.idea
+coverage

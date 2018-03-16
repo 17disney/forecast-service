@@ -1,0 +1,49 @@
+{
+  "name": "disney-forecast",
+  "version": "0.0.1",
+  "author": "xank<xank@qq.com>",
+  "description": "Disney Forecast",
+  "private": true,
+  "dependencies": {
+    "egg": "^2.3.0",
+    "egg-alinode": "^2.0.1",
+    "egg-cors": "^2.0.0",
+    "egg-mongoose": "^2.1.1",
+    "egg-scripts": "2.1.0",
+    "egg-validate": "^1.0.0"
+  },
+  "devDependencies": {
+    "autod": "^3.0.1",
+    "autod-egg": "^1.0.0",
+    "egg-bin": "^4.3.5",
+    "egg-ci": "^1.8.0",
+    "egg-mock": "^3.13.0",
+    "eslint": "^4.11.0",
+    "eslint-config-egg": "^5.1.0",
+    "webstorm-disable-index": "^1.2.0"
+  },
+  "engines": {
+    "node": ">=8.9.0"
+  },
+  "scripts": {
+    "start": "egg-scripts start --port=27301 --daemon --title=disney-forecast",
+    "docker": "egg-scripts start --port=80 --title=disney-forecast",
+    "stop": "egg-scripts stop",
+    "dev": "egg-bin dev --port=7100",
+    "debug": "egg-bin debug",
+    "test": "npm run test-local",
+    "test-local": "egg-bin test",
+    "cov": "egg-bin cov",
+    "lint": "eslint .",
+    "ci": "npm run cov",
+    "autod": "autod"
+  },
+  "ci": {
+    "version": "8"
+  },
+  "repository": {
+    "type": "git",
+    "url": ""
+  },
+  "license": "Apache"
+}
