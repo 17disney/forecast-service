@@ -1,10 +1,10 @@
 const Controller = require('egg').Controller
 
 class DayController extends Controller {
-  async date() {
+  async rank() {
     const { ctx } = this
-    const { date } = ctx.params
-    ctx.body = await ctx.service.day.getDateRank(date)
+    const { st, et } = ctx.query
+    ctx.body = await ctx.service.day.getDateRangeRank(st ,et)
   }
 }
 

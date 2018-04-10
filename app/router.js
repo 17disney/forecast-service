@@ -9,8 +9,9 @@ module.exports = app => {
   router.put('/park/:local/:date', controller.park.update)
 
 
-  router.get('/weather', controller.weather.index)
-  router.get('/days/:date', controller.day.date)
+  router.get('/weather/history', controller.weather.history)
+  router.get('/weather/forecast', controller.weather.forecast)
+  router.get('/day/rank', controller.day.rank)
 
   // router.put('/park/:local/:date', controller.park.update)
 

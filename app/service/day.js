@@ -6,11 +6,21 @@ const {
   JIKA
 } = require('../common/data/festival_days')
 
+const { dateRangeList } = require('../utils')
 const moment = require('moment')
 const Service = require('egg').Service
 
 class DaysService extends Service {
-  async getDateRank(date) {
+  async getDateRangeRank(st, et) {
+    const list = dateRangeList(st, et)
+    const dates = {}
+    list.forEach(date => {
+      dates[date] = this.getDateRank(date)
+    })
+    return dates
+  }
+
+  getDateRank(date) {
     const da = moment(date, 'YYYY-MM-DD').format('MM-DD')
 
     let rank = []

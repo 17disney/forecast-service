@@ -1,11 +1,16 @@
 const Controller = require('egg').Controller
 
 class WeatherController extends Controller {
-  async index() {
+  async history() {
     const { ctx } = this
 
-    const { st, et } = ctx.params
-    ctx.body = await ctx.service.weather.mathHistory(st, et)
+    const { st, et } = ctx.query
+    ctx.body = await ctx.service.weather.getDateRangesRank(st, et)
+  }
+
+  async forecast() {
+    const { ctx } = this
+    ctx.body = await ctx.service.weather.getForecast()
   }
 }
 
