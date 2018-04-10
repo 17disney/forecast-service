@@ -13,6 +13,9 @@ module.exports = app => {
   router.get('/weather/forecast', controller.weather.forecast)
   router.get('/day/rank', controller.day.rank)
 
+  router.get('/tickets/:local', controller.ticket.dateRange)
+  router.get('/tickets/:local/:date', controller.ticket.date)
+
   // router.put('/park/:local/:date', controller.park.update)
 
   // router.get('/wait-forecast/attractions/:local/:id', controller.forecast.attractionsId)

@@ -20,9 +20,9 @@ const SUPER_MAX = 24
 
 class WeatherService extends Service {
   async getDateRangesRank(st, et) {
-    let data = await superAgent.get(
-      `https://api.xanke.net/weather-service/weather/search?city=shanghai&st=${st}&${et}`
-    )
+    let data = await superAgent
+      .get(`https://api.xanke.net/weather-service/weather/search?city=shanghai`)
+      .query({ st, et })
 
     let list = data.body
 
