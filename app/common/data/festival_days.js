@@ -1,3 +1,5 @@
+const { dateRange } = require('../../utils')
+
 const TYPE = {
   WUYI: 0,
   DUANWU: 1,
@@ -11,9 +13,10 @@ const TYPE = {
   MENGXIANG: 9,
   HANJIA: 10,
   SHUJIA: 11,
+  JIKA: 12
 }
 
-const days = {
+const DAYS = {
   '2017-04-29': TYPE.WUYI,
   '2017-04-30': TYPE.WUYI,
   '2017-05-01': TYPE.WUYI,
@@ -63,11 +66,11 @@ const days = {
   '2018-10-07': TYPE.GUOQING
 }
 
-const HANJIA = {
+let HANJIA_RANGE = {
   2018: ['2018-01-26', '2018-02-22']
 }
 
-const SHUJIA = ['07-01', '08-31']
+const SHUJIA_RANGE = ['07-01', '08-31']
 
 const FIXED = {
   '06-16': TYPE.MENGXIANG,
@@ -76,9 +79,37 @@ const FIXED = {
   '12-24': TYPE.SHENGDAN
 }
 
-const JIKA = {
+const JIKA_RANGE = {
   '2016A': ['2016-11-12', '2017-03-31'],
   '2017A': ['2017-03-18', '2017-07-18'],
   '2017B': ['2017-09-03', '2018-01-25'],
   '2018A': ['2018-03-16', '2018-07-31']
+}
+
+const SHUJIA = dateRange(SHUJIA_RANGE[0], SHUJIA_RANGE[1], TYPE.SHUJIA)
+const HANJIA = (function() {
+  let list = {}
+  for (let k in HANJIA_RANGE) {
+    const item = HANJIA_RANGE[k]
+    const [st, et] = item
+    Object.assign(list, dateRange(st, et, TYPE.HANJIA))
+  }
+  return list
+})()
+
+const JIKA = (function() {
+  let list = {}
+  for (let k in JIKA_RANGE) {
+    const [st, et] = JIKA_RANGE[k]
+    Object.assign(list, dateRange(st, et, TYPE.JIKA))
+  }
+  return list
+})()
+
+module.exports = {
+  DAYS,
+  FIXED,
+  HANJIA,
+  SHUJIA,
+  JIKA
 }

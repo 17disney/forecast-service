@@ -8,6 +8,10 @@ module.exports = app => {
   router.get('/park', controller.home.index)
   router.put('/park/:local/:date', controller.park.update)
 
+
+  router.get('/weather', controller.weather.index)
+  router.get('/days/:date', controller.day.date)
+
   // router.put('/park/:local/:date', controller.park.update)
 
   // router.get('/wait-forecast/attractions/:local/:id', controller.forecast.attractionsId)

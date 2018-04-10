@@ -14,5 +14,5 @@ module.exports = app => {
     utime: { type: Number }
   })
 
-  return mongoose.model('FtPark', DsParkSchema, 'Ft_parks')
+  return mongoose.model('FtPark', FtParkSchema, 'Ft_parks')
 }
