@@ -8,7 +8,7 @@ const TICKET_ABAILABLE = 20000
 const TEAM_MIN = 500
 
 class TicketService extends Service {
-  async getByDateRange(local, st, et) {
+  async getDateRange(local, st, et) {
     const { ctx } = this
 
     const dateSet = new Set(dateRangeList(st, et))
@@ -23,7 +23,9 @@ class TicketService extends Service {
 
     let data
     data = await ctx.model.FtTicket.find(find, {
-      _id: 0
+      _id: 0,
+      local: 0,
+      utime: 0
     }).sort({ date: 1 })
 
     data.forEach(item => {
@@ -42,6 +44,8 @@ class TicketService extends Service {
 
     return data
   }
+
+
 
   async getByDate(local, date) {
     const { ctx } = this

@@ -1,19 +1,21 @@
 const { dateRange } = require('../../utils')
 
 const TYPE = {
-  WUYI: 0,
-  DUANWU: 1,
-  ERTONG: 2,
-  GUOQING: 3,
-  SHENGDAN: 4,
-  YUANDAN: 5,
-  CHUXI: 6,
-  GUONIAN: 7,
-  ZHONGQIU: 8,
-  MENGXIANG: 9,
+  WUYI: 8,
+  DUANWU: 8,
+  ERTONG: 8,
+  GUOQING: 12,
+  SHENGDAN: 10,
+  YUANDAN: 8,
+  CHUXI: -4,
+  GUONIAN: 12,
+  ZHONGQIU: 10,
+  MENGXIANG: 10,
   HANJIA: 10,
-  SHUJIA: 11,
-  JIKA: 12
+  SHUJIA: 10,
+  JIKA: 5,
+  SANBA: 8,
+  QINGMING: 10
 }
 
 const DAYS = {
@@ -73,6 +75,7 @@ let HANJIA_RANGE = {
 const SHUJIA_RANGE = ['07-01', '08-31']
 
 const FIXED = {
+  '03-08': TYPE.SANBA,
   '06-16': TYPE.MENGXIANG,
   '01-01': TYPE.YUANDAN,
   '12-24': TYPE.SHENGDAN,
