@@ -38,10 +38,17 @@ class ForecastService extends Service {
       ticketFT.push(this.mathTicket(d6, weaRank, dayRank))
 
       const forecast = []
-      ticketFT.forEach(_ => {
-        const ticketNumFT = _[6][1]
-        const mk = Math.round(100 - Math.abs(ticketNumFT - ticketNum) / ticketNum * 100)
-        forecast.push([_, mk])
+      ticketFT.forEach(list => {
+        const ticketNumFT = list[6][1]
+        const mk = Math.round(
+          100 - Math.abs(ticketNumFT - ticketNum) / ticketNum * 100
+        )
+
+        forecast.push({
+          list,
+          mk,
+          ticketNumFT
+        })
       })
 
       mathData.push({
@@ -67,12 +74,9 @@ class ForecastService extends Service {
     const END_SLOPE = 200
     let slope = 50
 
-
     if (pos === -6) {
       for (let i = -5; i <= -2; i++) {
         ticketNum += parseInt(slope * (1 + weaRank * 0.15 + dayRank * 0.15))
-
-        console.log(ticketNum)
         num.push([i, ticketNum])
       }
     } else if (pos >= -5) {
