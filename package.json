@@ -11,6 +11,9 @@
     "egg-mongoose": "^2.1.1",
     "egg-scripts": "2.1.0",
     "egg-validate": "^1.0.0",
+    "lodash": "^4.17.5",
+    "math": "^0.0.3",
+    "ml-regression": "^4.4.2",
     "moment": "^2.22.0",
     "superagent": "^3.8.2"
   },
