@@ -7,6 +7,7 @@ const SLR = require('ml-regression').SLR
 class ForecastService extends Service {
   async getTicket(local, st, et) {
     const { ctx } = this
+    const FT_DAYS = 7
 
     let ticketData = await ctx.service.ticket.getDateRange(local, st, et)
     let weaRankData = await ctx.service.weather.getDateRangesRank(st, et)
@@ -17,7 +18,7 @@ class ForecastService extends Service {
     ticketData.forEach((item, index) => {
       let { date, dayList, ticketNum, teamNum } = item
 
-      dayList = dayList.slice(-7)
+      dayList = dayList.slice(-FT_DAYS)
       const weaRank = weaRankData[index]['rank']
       const dayRank = dayRankData[index]['rank']
 
@@ -39,14 +40,14 @@ class ForecastService extends Service {
 
       const forecast = []
       ticketFT.forEach(list => {
-        const ticketNumFT = list[6][1]
-        const mk = Math.round(
+        const ticketNumFT = list[FT_DAYS - 1][1]
+        const rate = Math.round(
           100 - Math.abs(ticketNumFT - ticketNum) / ticketNum * 100
         )
 
         forecast.push({
           list,
-          mk,
+          rate,
           ticketNumFT
         })
       })
@@ -65,8 +66,20 @@ class ForecastService extends Service {
     return mathData
   }
 
+  ticketFTList(list, ticketNum) {
+    const pos = -(FT_DAYS - list.length)
+
+    if (ticketNum > 20000) {
+      ticketNum = 20000
+    }
+
+    ticketNum = parseInt(ticketNum)
+    list.push([pos + 1, ticketNum])
+    return list
+  }
+
   mathTicket(num, weaRank, dayRank) {
-    const pos = -(7 - num.length)
+    const pos = -(FT_DAYS - num.length)
     let ticketNum = num[num.length - 1][1]
     weaRank = _.sum(weaRank)
     dayRank = _.sum(dayRank)
@@ -74,10 +87,10 @@ class ForecastService extends Service {
     const END_SLOPE = 200
     let slope = 50
 
-    if (pos === -6) {
+    if (pos === -(FT_DAYS - 1)) {
       for (let i = -5; i <= -2; i++) {
-        ticketNum += parseInt(slope * (1 + weaRank * 0.15 + dayRank * 0.15))
-        num.push([i, ticketNum])
+        ticketNum += slope * (1 + weaRank * 0.15 + dayRank * 0.15)
+        num = this.ticketFTList(num, ticketNum)
       }
     } else if (pos >= -5) {
       const inputs = num.map(_ => _[0]).slice(-5)
@@ -86,8 +99,8 @@ class ForecastService extends Service {
       slope = regression.slope
 
       for (let i = pos + 1; i <= -2; i++) {
-        ticketNum += parseInt(slope * (1 + weaRank * 0.15 + dayRank * 0.15))
-        num.push([i, ticketNum])
+        ticketNum += slope * (1 + weaRank * 0.1 + dayRank * 0.1)
+        num = this.ticketFTList(num, ticketNum)
       }
     }
 
@@ -95,22 +108,65 @@ class ForecastService extends Service {
       const inputs = num.map(_ => _[0]).slice(-2)
       const outputs = num.map(_ => _[1]).slice(-2)
       const regression = new SLR(inputs, outputs)
-      slope = regression.slope
+      slope = regression.slope * 0.7 - 100
 
-      ticketNum += parseInt(slope * (1 + weaRank * 0.15 + dayRank * 0.15))
-      num.push([-1, ticketNum])
+      // ticketNum += slope * (1 + weaRank * 0.15 + dayRank * 0.15)
+      // num = this.ticketFTList(num, ticketNum)
     } else {
-      ticketNum += parseInt(slope * (1 + 0.2 + weaRank * 0.15 + dayRank * 0.15))
-      num.push([-1, ticketNum])
+      ticketNum += slope * (1 + 0.2 + weaRank * 0.15 + dayRank * 0.15)
+      num = this.ticketFTList(num, ticketNum)
     }
 
-    ticketNum += parseInt(
-      (END_SLOPE + slope) * (1 + weaRank * 0.15 + dayRank * 0.15)
-    )
-    num.push([0, ticketNum])
+    ticketNum += (END_SLOPE + slope) * (1 + weaRank * 0.05 + dayRank * 0.1)
+
+    num = this.ticketFTList(num, ticketNum)
     // 计算最后一天
 
     return num
+  }
+
+  async getPark(local, st, et) {
+    const { ctx } = this
+    let ticketData = await ctx.service.ticket.getDateRange(local, st, et)
+    let parkData = await ctx.service.park.getDateRange(local, st, et)
+    let weaRankData = await ctx.service.weather.getDateRangesRank(st, et)
+    let dayRankData = await ctx.service.day.getDateRangeRank(st, et)
+
+    const TICKET_RANK = 6
+    const FLOW_STAGE2 = 10000
+
+    parkData.forEach((item, index) => {
+      let { ticketNum, ticketTeam } = ticketData[index]
+
+      const { flowMax } = item
+      const STAGE1 = 5000
+      const STAGE2 = 8000
+
+
+      let flowMaxFT = 18000
+      if (ticketNum < STAGE1) {
+        flowMaxFT += ticketNum *TICKET_RANK
+      }
+      if (ticketNum > STAGE1){
+        const stage = (ticketNum - STAGE1) > STAGE1 ? STAGE1 : ticketNum - STAGE1
+        console.log(stage)
+        flowMaxFT += stage * TICKET_RANK / 0.7
+      }
+
+      if (ticketNum > STAGE2) {
+        flowMaxFT += (ticketNum - STAGE2) * TICKET_RANK * 0.1
+      }
+
+      const rate = Math.round(
+        100 - Math.abs(flowMaxFT - flowMax) / flowMax * 100
+      )
+
+      item.ticketNum = ticketNum
+      item.flowMaxFTRate = rate
+      item.flowMaxFT = parseInt(flowMaxFT)
+    })
+
+    return parkData
   }
 }
 

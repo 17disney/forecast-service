@@ -1,5 +1,5 @@
 const Service = require('egg').Service
-const Ticket = require('../common/api/ticket')
+const Waittimes = require('../common/api/waittimes')
 const moment = require('moment')
 const { dateRangeList, sortByDate } = require('../utils')
 const { DATE_FORMAT } = require('../common/const')
@@ -67,7 +67,7 @@ class TicketService extends Service {
 
   async updateDate(local, date) {
     const { ctx } = this
-    const data = await Ticket.availableDate(local, date)
+    const data = await Waittimes.ticketDate(local, date)
 
     const { availableList } = data
 
