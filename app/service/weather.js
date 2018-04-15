@@ -6,7 +6,10 @@ const superAgent = require('superAgent')
 const WEA_RANK = {
   晴: 10,
   多云: 8,
+  局部多云: 8,
+  零散阵雨: 6,
   阴: 7,
+  刮风: 7,
   雪: 6,
   雨: 6,
   阵雨: 6,

@@ -2,12 +2,13 @@ const Service = require('egg').Service
 const moment = require('moment')
 const _ = require('lodash')
 const SLR = require('ml-regression').SLR
-// const { removeProperty } = require('../util/util')
+const Waittimes = require('../common/api/waittimes')
+const FT_DAYS = 7
+const DATE_FORMAT = 'YYYY-MM-DD'
 
 class ForecastService extends Service {
   async getTicket(local, st, et) {
     const { ctx } = this
-    const FT_DAYS = 7
 
     let ticketData = await ctx.service.ticket.getDateRange(local, st, et)
     let weaRankData = await ctx.service.weather.getDateRangesRank(st, et)
@@ -19,7 +20,7 @@ class ForecastService extends Service {
       let { date, dayList, ticketNum, teamNum } = item
 
       dayList = dayList.slice(-FT_DAYS)
-      const weaRank = weaRankData[index]['rank']
+      const weaRank = weaRankData[index] ? weaRankData[index]['rank'] : [10]
       const dayRank = dayRankData[index]['rank']
 
       const ticketFT = []
@@ -109,9 +110,6 @@ class ForecastService extends Service {
       const outputs = num.map(_ => _[1]).slice(-2)
       const regression = new SLR(inputs, outputs)
       slope = regression.slope * 0.7 - 100
-
-      // ticketNum += slope * (1 + weaRank * 0.15 + dayRank * 0.15)
-      // num = this.ticketFTList(num, ticketNum)
     } else {
       ticketNum += slope * (1 + 0.2 + weaRank * 0.15 + dayRank * 0.15)
       num = this.ticketFTList(num, ticketNum)
@@ -125,6 +123,64 @@ class ForecastService extends Service {
     return num
   }
 
+  async getReport(local) {
+    const { ctx } = this
+
+    const st = moment()
+      .add(1, 'days')
+      .format(DATE_FORMAT)
+    const et = moment()
+      .add(5, 'days')
+      .format(DATE_FORMAT)
+
+    let ticketData = await ctx.service.ticket.getDateRange(local, st, et)
+    let weaRankData = await ctx.service.weather.getForecast()
+    let dayRankData = await ctx.service.day.getDateRangeRank(st, et)
+
+    const weaRanks = {}
+    weaRankData.forEach(item => {
+      weaRanks[item.date] = item
+    })
+
+    let mathData = []
+
+    ticketData.forEach((item, index) => {
+      let { date, dayList, ticketNum, teamNum } = item
+
+      const weaRank = weaRankData[index] ? weaRankData[index]['rank'] : [10]
+      const dayRank = dayRankData[index]['rank']
+
+      let dList = []
+      dayList.forEach(arr => {
+        const [day, num] = arr
+        if (day >= -6) {
+          dList.push(arr)
+        }
+      })
+      dList = dList.slice(0, dList.length - 1)
+
+      const ticketFT = []
+
+      const dayListFT = this.mathTicket(dList, weaRank, dayRank)
+      const ticketNumFT = dList[FT_DAYS - 1][1]
+      const flowMaxFT = this.mathFlow(ticketNumFT)
+
+      mathData.push({
+        date,
+        ticketNum,
+        teamNum,
+        dayList,
+        dayListFT,
+        ticketNumFT,
+        flowMaxFT,
+        weaRank,
+        dayRank
+      })
+    })
+
+    return mathData
+  }
+
   async getPark(local, st, et) {
     const { ctx } = this
     let ticketData = await ctx.service.ticket.getDateRange(local, st, et)
@@ -132,31 +188,12 @@ class ForecastService extends Service {
     let weaRankData = await ctx.service.weather.getDateRangesRank(st, et)
     let dayRankData = await ctx.service.day.getDateRangeRank(st, et)
 
-    const TICKET_RANK = 6
-    const FLOW_STAGE2 = 10000
-
     parkData.forEach((item, index) => {
       let { ticketNum, ticketTeam } = ticketData[index]
 
       const { flowMax } = item
-      const STAGE1 = 5000
-      const STAGE2 = 8000
 
-
-      let flowMaxFT = 18000
-      if (ticketNum < STAGE1) {
-        flowMaxFT += ticketNum *TICKET_RANK
-      }
-      if (ticketNum > STAGE1){
-        const stage = (ticketNum - STAGE1) > STAGE1 ? STAGE1 : ticketNum - STAGE1
-        console.log(stage)
-        flowMaxFT += stage * TICKET_RANK / 0.7
-      }
-
-      if (ticketNum > STAGE2) {
-        flowMaxFT += (ticketNum - STAGE2) * TICKET_RANK * 0.1
-      }
-
+      const flowMaxFT = this.mathFlow(ticketNum)
       const rate = Math.round(
         100 - Math.abs(flowMaxFT - flowMax) / flowMax * 100
       )
@@ -167,6 +204,81 @@ class ForecastService extends Service {
     })
 
     return parkData
+  }
+
+  mathFlow(ticketNum) {
+    const TICKET_RANK = 6
+    const STAGE1 = 5000
+    const STAGE2 = 8000
+
+    let flowMaxFT = 18000
+    if (ticketNum < STAGE1) {
+      flowMaxFT += ticketNum * TICKET_RANK
+    }
+    if (ticketNum > STAGE1) {
+      const stage = ticketNum - STAGE1 > STAGE1 ? STAGE1 : ticketNum - STAGE1
+      flowMaxFT += stage * TICKET_RANK / 0.7
+    }
+
+    if (ticketNum > STAGE2) {
+      flowMaxFT += (ticketNum - STAGE2) * TICKET_RANK * 0.1
+    }
+    return flowMaxFT
+  }
+
+  async updateAttractionMath(local, id, st, et, parkData) {
+    const { ctx } = this
+    let attData = await Waittimes.attractions(local, id, { st, et })
+
+    const x = []
+    const maxList = []
+    const avgList = []
+
+    parkData.forEach(item => {
+      x.push(item['flowMax'])
+    })
+
+    attData.forEach(item => {
+      maxList.push(item['waitMax'])
+      avgList.push(item['waitAvg'])
+    })
+
+    const { slope: maxSlope, intercept: maxIntercept } = new SLR(x, maxList)
+    const { slope: avgSlope, intercept: avgIntercept } = new SLR(x, avgList)
+
+    const $set = {
+      local,
+      id,
+      mathMax: [maxSlope, maxIntercept],
+      mathAvg: [avgSlope, avgIntercept]
+    }
+
+    console.log($set)
+
+    ctx.model.FtAttraction.update(
+      {
+        local,
+        id
+      },
+      { $set },
+      {
+        upsert: true
+      }
+    ).exec()
+  }
+
+  async getAttraction(local, st, et) {
+    const { ctx } = this
+    // let weaRankData = await ctx.service.weather.getDateRangesRank(st, et)
+    let parkData = await ctx.service.park.getDateRange(local, st, et)
+    let attList = await Waittimes.home(local, '2018-04-01')
+
+    attList.forEach(item => {
+      const id = item.id
+      this.updateAttractionMath(local, id, st, et, parkData)
+    })
+
+    return 'ok'
   }
 }
 

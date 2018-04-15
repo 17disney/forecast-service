@@ -34,6 +34,13 @@ module.exports = {
     })
   },
 
+  home: function home(local, date) {
+    return request({
+      url: `${base}/wait-times/home/${local}/${date}`,
+      method: 'get'
+    })
+  },
+
   attractionsDate: function attractionsDate(local, id, date) {
     return request({
       url: `${base}/wait-times/attractions/${local}/${id}/${date}`,

@@ -8,7 +8,7 @@ module.exports = app => {
   router.get('/park', controller.home.index)
   router.put('/park/:local/:date', controller.park.update)
 
-   router.get('/weather/history', controller.weather.history)
+  router.get('/weather/history', controller.weather.history)
   router.get('/weather/forecast', controller.weather.forecast)
   router.get('/day/rank', controller.day.rank)
 
@@ -17,6 +17,10 @@ module.exports = app => {
 
   router.get('/forecast/tickets/:local', controller.forecast.ticket)
   router.get('/forecast/park/:local', controller.forecast.park)
+  router.get('/forecast/attractions/:local', controller.forecast.attraction)
+
+
+  router.get('/forecast/report/:local', controller.forecast.report)
   // router.get('/forecast/tickets/:date', controller.ticket.forecastDate)
 
   // router.put('/park/:local/:date', controller.park.update)

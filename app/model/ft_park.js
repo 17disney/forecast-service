@@ -17,5 +17,5 @@ module.exports = app => {
     { versionKey: false }
   )
 
-  return mongoose.model('FtPark', FtParkSchema, 'Ft_parks')
+  return mongoose.model('FtPark', FtParkSchema, 'ft_parks')
 }
