@@ -198,7 +198,7 @@ class ForecastService extends Service {
       const [m1, m2] = mathMax
 
       const waitAvg = a1 * flow + a1 > 0 ? parseInt(a1 * flow + a1) : 0
-      const waitMax = m1 * flow + m2 > 0 ? parseInt(m1 * flow + m2 > 0) : 0
+      const waitMax = m1 * flow + m2 > 0 ? parseInt(m1 * flow + m2) : 0
 
       list.push({
         id,
