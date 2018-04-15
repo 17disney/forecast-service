@@ -144,7 +144,11 @@ class ForecastService extends Service {
 
     let mathData = []
 
-    ticketData.forEach((item, index) => {
+    // ticketData.forEach((item, index) => {
+
+    for (let index in ticketData) {
+      let item = ticketData[index]
+
       let { date, dayList, ticketNum, teamNum } = item
 
       const weaRank = weaRankData[index] ? weaRankData[index]['rank'] : [10]
@@ -164,9 +168,11 @@ class ForecastService extends Service {
       const dayListFT = this.mathTicket(dList, weaRank, dayRank)
       const ticketNumFT = dList[FT_DAYS - 1][1]
       const flowMaxFT = this.mathFlow(ticketNumFT)
+      const attractions = await this.mathAttractions(flowMaxFT)
 
       mathData.push({
         date,
+        attractions,
         ticketNum,
         teamNum,
         dayList,
@@ -176,9 +182,32 @@ class ForecastService extends Service {
         weaRank,
         dayRank
       })
-    })
+    }
 
     return mathData
+  }
+
+  async mathAttractions(flow) {
+    const { ctx } = this
+    const attList = await ctx.model.FtAttraction.find()
+
+    const list = []
+    attList.forEach(item => {
+      const { mathAvg, mathMax, id } = item
+      const [a1, a2] = mathAvg
+      const [m1, m2] = mathMax
+
+      const waitAvg = a1 * flow + a1 > 0 ? parseInt(a1 * flow + a1) : 0
+      const waitMax = m1 * flow + m2 > 0 ? parseInt(m1 * flow + m2 > 0) : 0
+
+      list.push({
+        id,
+        waitAvg,
+        waitMax
+      })
+    })
+
+    return list
   }
 
   async getPark(local, st, et) {
@@ -223,6 +252,7 @@ class ForecastService extends Service {
     if (ticketNum > STAGE2) {
       flowMaxFT += (ticketNum - STAGE2) * TICKET_RANK * 0.1
     }
+
     return flowMaxFT
   }
 
