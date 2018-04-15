@@ -1,7 +1,7 @@
 const Service = require('egg').Service
 const moment = require('moment')
 const WEATHER_SERVER = 'http://api.xanke.net/weather-service'
-const superAgent = require('superAgent')
+const superAgent = require('superagent')
 
 const WEA_RANK = {
   晴: 10,
