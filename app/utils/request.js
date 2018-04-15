@@ -1,4 +1,4 @@
-const superAgent = require('superAgent')
+const superAgent = require('superagent')
 
 const request = async (options) => {
   const {url, method, params} = options

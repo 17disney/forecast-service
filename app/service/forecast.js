@@ -283,8 +283,6 @@ class ForecastService extends Service {
       mathAvg: [avgSlope, avgIntercept]
     }
 
-    console.log($set)
-
     ctx.model.FtAttraction.update(
       {
         local,
@@ -307,7 +305,6 @@ class ForecastService extends Service {
       const id = item.id
       this.updateAttractionMath(local, id, st, et, parkData)
     })
-
     return 'ok'
   }
 }
