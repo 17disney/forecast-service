@@ -45,8 +45,6 @@ class TicketService extends Service {
     return data
   }
 
-
-
   async getByDate(local, date) {
     const { ctx } = this
 

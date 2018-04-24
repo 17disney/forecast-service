@@ -10,7 +10,6 @@ class ParkService extends Service {
   }
 
   async updateByLocalDate(find, data) {
-    // removeProperty(data)
     let ret = await this.ctx.model.FtPark.update(
       find,
       {

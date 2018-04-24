@@ -253,6 +253,8 @@ class ForecastService extends Service {
       flowMaxFT += (ticketNum - STAGE2) * TICKET_RANK * 0.1
     }
 
+    console.log(flowMaxFT)
+
     return flowMaxFT
   }
 

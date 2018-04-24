@@ -1,6 +1,5 @@
 const request = require('../../utils/request')
 const SERVER = 'http://api.17disney.com/wait-times-service'
-// const base = `${SERVER}/wait-times-service`
 const base = SERVER
 
 module.exports = {

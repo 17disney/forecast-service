@@ -13,9 +13,6 @@ class TicketController extends Controller {
     const { st, et } = ctx.query
     ctx.body = await ctx.service.ticket.getDateRange(local, st, et)
   }
-
-
-
 }
 
 module.exports = TicketController
