@@ -80,6 +80,9 @@ class ForecastService extends Service {
   }
 
   mathTicket(num, weaRank, dayRank) {
+    if (num.length === 0) {
+      return false
+    }
     const pos = -(FT_DAYS - num.length)
     let ticketNum = num[num.length - 1][1]
     weaRank = _.sum(weaRank)
@@ -123,6 +126,7 @@ class ForecastService extends Service {
     return num
   }
 
+  // 获取预测报告
   async getReport(local) {
     const { ctx } = this
 
@@ -130,7 +134,7 @@ class ForecastService extends Service {
       .add(1, 'days')
       .format(DATE_FORMAT)
     const et = moment()
-      .add(5, 'days')
+      .add(6, 'days')
       .format(DATE_FORMAT)
 
     let ticketData = await ctx.service.ticket.getDateRange(local, st, et)
@@ -144,8 +148,6 @@ class ForecastService extends Service {
 
     let mathData = []
 
-    // ticketData.forEach((item, index) => {
-
     for (let index in ticketData) {
       let item = ticketData[index]
 
@@ -157,15 +159,23 @@ class ForecastService extends Service {
       let dList = []
       dayList.forEach(arr => {
         const [day, num] = arr
-        if (day >= -6) {
+        if (day >= -7) {
           dList.push(arr)
         }
       })
+
+      // 去除当天售票量
       dList = dList.slice(0, dList.length - 1)
 
       const ticketFT = []
+      console.log(dList)
 
       const dayListFT = this.mathTicket(dList, weaRank, dayRank)
+
+      if (!dayListFT) {
+        break
+      }
+
       const ticketNumFT = dList[FT_DAYS - 1][1]
       const flowMaxFT = this.mathFlow(ticketNumFT)
       const attractions = await this.mathAttractions(flowMaxFT)
@@ -175,7 +185,7 @@ class ForecastService extends Service {
         attractions,
         ticketNum,
         teamNum,
-        dayList,
+        dayList: dList,
         dayListFT,
         ticketNumFT,
         flowMaxFT,
@@ -213,6 +223,8 @@ class ForecastService extends Service {
   async getPark(local, st, et) {
     const { ctx } = this
     let ticketData = await ctx.service.ticket.getDateRange(local, st, et)
+
+
     let parkData = await ctx.service.park.getDateRange(local, st, et)
     let weaRankData = await ctx.service.weather.getDateRangesRank(st, et)
     let dayRankData = await ctx.service.day.getDateRangeRank(st, et)
@@ -235,6 +247,7 @@ class ForecastService extends Service {
     return parkData
   }
 
+  // 计算客流量
   mathFlow(ticketNum) {
     const TICKET_RANK = 6
     const STAGE1 = 5000
@@ -253,9 +266,7 @@ class ForecastService extends Service {
       flowMaxFT += (ticketNum - STAGE2) * TICKET_RANK * 0.1
     }
 
-    console.log(flowMaxFT)
-
-    return flowMaxFT
+    return parseInt(flowMaxFT)
   }
 
   async updateAttractionMath(local, id, st, et, parkData) {

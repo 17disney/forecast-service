@@ -63,10 +63,11 @@ class TicketService extends Service {
     return data
   }
 
+  // 更新售票量
   async updateDate(local, date) {
     const { ctx } = this
-    const data = await Waittimes.ticketDate(local, date)
 
+    const data = await Waittimes.ticketDate(local, date)
     const { availableList } = data
 
     let teamNum = 0

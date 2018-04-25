@@ -2,13 +2,12 @@ const Subscription = require('egg').Subscription
 const moment = require('moment')
 
 const { DATE_FORMAT } = require('../common/const')
-const TODAY = moment().format(DATE_FORMAT)
 const MAX_DAYS = 7
 
 class UpdateTicket extends Subscription {
   static get schedule() {
     return {
-      interval: '120m',
+      interval: '10m',
       type: 'all'
     }
   }
@@ -17,7 +16,7 @@ class UpdateTicket extends Subscription {
     const { ctx } = this
 
     for (let i = 0; i <= MAX_DAYS; i++) {
-      const date = moment(TODAY, DATE_FORMAT)
+      const date = moment()
         .add(i, 'days')
         .format(DATE_FORMAT)
       ctx.service.ticket.updateDate('shanghai', date)
