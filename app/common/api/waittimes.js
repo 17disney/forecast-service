@@ -53,5 +53,12 @@ module.exports = {
       method: 'get',
       params
     })
+  },
+
+  schedulesPre: function schedulesPre(local) {
+    return request({
+      url: `${base}/schedules/pre/${local}`,
+      method: 'get'
+    })
   }
 }

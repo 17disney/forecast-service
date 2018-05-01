@@ -4,8 +4,6 @@ const request = async (options) => {
   const {url, method, params} = options
   let data
 
-  console.log(url)
-
   if (params) {
     data  = await superAgent.get(url).query(params)
   } else {

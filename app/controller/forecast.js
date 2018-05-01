@@ -11,7 +11,7 @@ class ForecastController extends Controller {
   async report() {
     const { ctx } = this
     const { local } = ctx.params
-    ctx.body = await ctx.service.forecast.getReport(local)
+    ctx.body = await ctx.service.report.getByLocal(local)
   }
 
   async park() {

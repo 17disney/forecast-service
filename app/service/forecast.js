@@ -126,8 +126,8 @@ class ForecastService extends Service {
     return num
   }
 
-  // 获取预测报告
-  async getReport(local) {
+  // 创建预测报告
+  async createReport(local) {
     const { ctx } = this
 
     const st = moment()
@@ -140,6 +140,7 @@ class ForecastService extends Service {
     let ticketData = await ctx.service.ticket.getDateRange(local, st, et)
     let weaRankData = await ctx.service.weather.getForecast()
     let dayRankData = await ctx.service.day.getDateRangeRank(st, et)
+    const schedulesData = await ctx.service.park.getSchedules(local)
 
     const weaRanks = {}
     weaRankData.forEach(item => {
@@ -168,7 +169,6 @@ class ForecastService extends Service {
       dList = dList.slice(0, dList.length - 1)
 
       const ticketFT = []
-      console.log(dList)
 
       const dayListFT = this.mathTicket(dList, weaRank, dayRank)
 
@@ -178,7 +178,11 @@ class ForecastService extends Service {
 
       const ticketNumFT = dList[FT_DAYS - 1][1]
       const flowMaxFT = this.mathFlow(ticketNumFT)
-      const attractions = await this.mathAttractions(flowMaxFT)
+      const attractions = await this.mathAttractions(
+        flowMaxFT,
+        schedulesData,
+        date
+      )
 
       mathData.push({
         date,
@@ -194,10 +198,18 @@ class ForecastService extends Service {
       })
     }
 
+    ctx.model.FtReport.create({
+      date: moment().format(DATE_FORMAT),
+      local,
+      utime: Date.now(),
+      data: mathData
+    })
+
     return mathData
   }
 
-  async mathAttractions(flow) {
+  // 计算项目等候时间
+  async mathAttractions(flow, schedulesData, date) {
     const { ctx } = this
     const attList = await ctx.model.FtAttraction.find()
 
@@ -210,11 +222,20 @@ class ForecastService extends Service {
       const waitAvg = a1 * flow + a1 > 0 ? parseInt(a1 * flow + a1) : 0
       const waitMax = m1 * flow + m2 > 0 ? parseInt(m1 * flow + m2) : 0
 
-      list.push({
+      const arr = {
         id,
         waitAvg,
         waitMax
-      })
+      }
+
+      let schedule = schedulesData[id]
+      if (schedule) {
+        schedule = schedule.find(_ => _.date === date)
+        delete schedule.date
+        Object.assign(arr, schedule)
+      }
+
+      list.push(arr)
     })
 
     return list
@@ -223,7 +244,6 @@ class ForecastService extends Service {
   async getPark(local, st, et) {
     const { ctx } = this
     let ticketData = await ctx.service.ticket.getDateRange(local, st, et)
-
 
     let parkData = await ctx.service.park.getDateRange(local, st, et)
     let weaRankData = await ctx.service.weather.getDateRangesRank(st, et)
@@ -269,6 +289,7 @@ class ForecastService extends Service {
     return parseInt(flowMaxFT)
   }
 
+  // 更新项目算法
   async updateAttractionMath(local, id, st, et, parkData) {
     const { ctx } = this
     let attData = await Waittimes.attractions(local, id, { st, et })

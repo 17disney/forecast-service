@@ -76,7 +76,7 @@ class WeatherService extends Service {
       weaSum += WEA_RANK[_]
     })
 
-    const weaRank = weaSum / wea.length
+    const weaRank = weaSum / wea.length | 5
 
     return [weaRank, teRank]
   }

@@ -7,7 +7,7 @@ const MAX_DAYS = 7
 class UpdateTicket extends Subscription {
   static get schedule() {
     return {
-      interval: '10m',
+      interval: '60m',
       type: 'all'
     }
   }
