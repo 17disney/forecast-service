@@ -228,6 +228,7 @@ class ForecastService extends Service {
         waitMax
       }
 
+      // 合并开放时间
       let schedule = schedulesData[id]
       if (schedule) {
         schedule = schedule.find(_ => _.date === date)
@@ -236,6 +237,27 @@ class ForecastService extends Service {
       }
 
       list.push(arr)
+    })
+
+    // 临时借用
+    list.forEach(item => {
+      // 抱抱龙冲天赛车 - 喷气背包飞行器
+      if (item.id === 'attRexsRCRacer') {
+        item.waitAvg = list.find(_ => _.id === 'attJetPacks')['waitAvg']
+        item.waitMax = list.find(_ => _.id === 'attJetPacks')['waitMax']
+      }
+
+      // 胡迪牛仔嘉年华 - 旋转木马
+      if (item.id === 'attWoodysRoundUp') {
+        item.waitAvg = list.find(_ => _.id === 'attFantasiaCarousel')['waitAvg']
+        item.waitMax = list.find(_ => _.id === 'attFantasiaCarousel')['waitMax']
+      }
+
+      // 弹簧狗团团转 - 旋转木马
+      if (item.id === 'attSlinkyDogSpin') {
+        item.waitAvg = list.find(_ => _.id === 'attFantasiaCarousel')['waitAvg']
+        item.waitMax = list.find(_ => _.id === 'attFantasiaCarousel')['waitMax']
+      }
     })
 
     return list
@@ -298,13 +320,19 @@ class ForecastService extends Service {
     const maxList = []
     const avgList = []
 
-    parkData.forEach(item => {
-      x.push(item['flowMax'])
-    })
+    // parkData.forEach(item => {
+    //   x.push(item['flowMax'])
+    // })
 
-    attData.forEach(item => {
-      maxList.push(item['waitMax'])
-      avgList.push(item['waitAvg'])
+    attData.forEach((item, index) => {
+      if (item.date !== '2018-04-26') {
+        if (item['waitMax'] > 0) {
+          maxList.push(item['waitMax'])
+          avgList.push(item['waitAvg'])
+
+          x.push(parkData[index]['flowMax'] * 1.2)
+        }
+      }
     })
 
     const { slope: maxSlope, intercept: maxIntercept } = new SLR(x, maxList)
@@ -333,7 +361,7 @@ class ForecastService extends Service {
     const { ctx } = this
     // let weaRankData = await ctx.service.weather.getDateRangesRank(st, et)
     let parkData = await ctx.service.park.getDateRange(local, st, et)
-    let attList = await Waittimes.home(local, '2018-04-01')
+    let attList = await Waittimes.home(local, '2018-04-27')
 
     attList.forEach(item => {
       const id = item.id
