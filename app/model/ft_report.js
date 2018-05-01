@@ -10,5 +10,8 @@ module.exports = app => {
     { versionKey: false }
   )
 
+  FtReportSchema.index({ local: 1, utime: -1 })
+  FtReportSchema.index({ local: 1, date: -1 })
+
   return mongoose.model('FtReport', FtReportSchema, 'ft_reports')
 }
