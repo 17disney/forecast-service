@@ -4,7 +4,7 @@ const moment = require('moment')
 const { dateRangeList, sortByDate } = require('../utils')
 const { DATE_FORMAT } = require('../common/const')
 
-const TICKET_ABAILABLE = 20000
+const TICKET_AVAILABLE = 20000
 const TEAM_MIN = 500
 
 class TicketService extends Service {
@@ -63,6 +63,7 @@ class TicketService extends Service {
     return data
   }
 
+
   // 更新售票量
   async updateDate(local, date) {
     const { ctx } = this
@@ -73,25 +74,32 @@ class TicketService extends Service {
     let teamNum = 0
     let dates = {}
     let dayList = []
+    let max = 0
+
+    let ticketAvailable = TICKET_AVAILABLE
 
     availableList.forEach((item, index) => {
-      const [time, available] = item
-      const ticketNum = TICKET_ABAILABLE - available
+      let [time, available] = item
 
-      const date = moment(time, 'x').format(DATE_FORMAT)
-      dates[date] = ticketNum
-
-      // 判断大团队
+      // 对比上一个数据
       if (index > 0) {
         const bItem = availableList[index - 1]
         const [bTime, bAvailable] = bItem
-        const bTicketNum = TICKET_ABAILABLE - bAvailable
-
-        const diff = ticketNum - bTicketNum
-        if (Math.abs(diff) > TEAM_MIN) {
+        const diff = available - bAvailable
+        // 判断大团队
+        if (diff > TEAM_MIN) {
           teamNum += diff
         }
+        // 判读增加库存
+        if (diff < 0) {
+          ticketAvailable += diff
+        }
       }
+
+      // 计算售票量
+      const ticketNum = ticketAvailable - available
+      const date = moment(time, 'x').format(DATE_FORMAT)
+      dates[date] = ticketNum
     })
 
     for (let _date in dates) {
@@ -103,7 +111,7 @@ class TicketService extends Service {
     }
 
     const ticketNum =
-      TICKET_ABAILABLE - availableList[availableList.length - 1][1]
+      TICKET_AVAILABLE - availableList[availableList.length - 1][1]
 
     const update = {
       local,

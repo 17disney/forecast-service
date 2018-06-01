@@ -22,7 +22,7 @@ class UpdateTicket extends Subscription {
       ctx.service.ticket.updateDate('shanghai', date)
     }
 
-    console.log('TICKET UPDATED')
+    console.log(Date.now(), 'TICKET UPDATED')
   }
 }
 
