@@ -19,12 +19,13 @@ module.exports = app => {
   router.get('/forecast/park/:local', controller.forecast.park)
   router.get('/forecast/attractions/:local', controller.forecast.attraction)
 
-
   router.get('/forecast/report/:local', controller.forecast.report)
-  // router.get('/forecast/tickets/:date', controller.ticket.forecastDate)
+
+  // 手动更新
+  // router.get('/update/forecast/:local', controller.forecast.create)
+  // router.get('/update/tickets/:local/:date', controller.ticket.forecastDate)
 
   // router.put('/park/:local/:date', controller.park.update)
-
   // router.get('/wait-forecast/attractions/:local/:id', controller.forecast.attractionsId)
   // router.put('/wait-forecast/attractions/:local/:id', controller.waitForecast.attractionsId)
   // router.get('/wait-forecast/attractions/:local/:id', controller.waitCount.attractionsId)

@@ -69,16 +69,12 @@ class ForecastService extends Service {
 
   ticketFTList(list, ticketNum) {
     const pos = -(FT_DAYS - list.length)
-
-    if (ticketNum > 20000) {
-      ticketNum = 20000
-    }
-
     ticketNum = parseInt(ticketNum)
     list.push([pos + 1, ticketNum])
     return list
   }
 
+  // 预测售票量
   mathTicket(num, weaRank, dayRank) {
     if (num.length === 0) {
       return false
@@ -112,6 +108,7 @@ class ForecastService extends Service {
       const inputs = num.map(_ => _[0]).slice(-2)
       const outputs = num.map(_ => _[1]).slice(-2)
       const regression = new SLR(inputs, outputs)
+
       slope = regression.slope * 0.7 - 100
     } else {
       ticketNum += slope * (1 + 0.2 + weaRank * 0.15 + dayRank * 0.15)
@@ -230,9 +227,8 @@ class ForecastService extends Service {
 
       // 合并开放时间
       let schedule = schedulesData[id]
-      if (schedule) {
+      if (schedule && arr) {
         schedule = schedule.find(_ => _.date === date)
-        delete schedule.date
         Object.assign(arr, schedule)
       }
 
@@ -241,19 +237,19 @@ class ForecastService extends Service {
 
     // 临时借用
     list.forEach(item => {
-      // 抱抱龙冲天赛车 - 喷气背包飞行器
+      // 抱抱龙冲天赛车 <- 喷气背包飞行器
       if (item.id === 'attRexsRCRacer') {
         item.waitAvg = list.find(_ => _.id === 'attJetPacks')['waitAvg']
         item.waitMax = list.find(_ => _.id === 'attJetPacks')['waitMax']
       }
 
-      // 胡迪牛仔嘉年华 - 旋转木马
+      // 胡迪牛仔嘉年华 <- 旋转木马
       if (item.id === 'attWoodysRoundUp') {
         item.waitAvg = list.find(_ => _.id === 'attFantasiaCarousel')['waitAvg']
         item.waitMax = list.find(_ => _.id === 'attFantasiaCarousel')['waitMax']
       }
 
-      // 弹簧狗团团转 - 旋转木马
+      // 弹簧狗团团转 <- 旋转木马
       if (item.id === 'attSlinkyDogSpin') {
         item.waitAvg = list.find(_ => _.id === 'attFantasiaCarousel')['waitAvg']
         item.waitMax = list.find(_ => _.id === 'attFantasiaCarousel')['waitMax']

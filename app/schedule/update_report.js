@@ -14,7 +14,7 @@ class UpdateReport extends Subscription {
   async subscribe() {
     const { ctx } = this
     ctx.service.forecast.createReport('shanghai')
-    console.log('REPORT UPDATED')
+    console.log(Date.now(), 'REPORT UPDATED')
   }
 }
 
