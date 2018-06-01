@@ -6,6 +6,7 @@ const { DATE_FORMAT } = require('../common/const')
 
 const TICKET_AVAILABLE = 20000
 const TEAM_MIN = 500
+const STORE_ADD = 500
 
 class TicketService extends Service {
   async getDateRange(local, st, et) {
@@ -76,28 +77,38 @@ class TicketService extends Service {
     let dayList = []
     let max = 0
 
-    let ticketAvailable = TICKET_AVAILABLE
+    let ticketNum = 0
 
     availableList.forEach((item, index) => {
       let [time, available] = item
 
+      if (index === 0) {
+        ticketNum = TICKET_AVAILABLE - available
+      }
+
       // 对比上一个数据
+      let diff
       if (index > 0) {
         const bItem = availableList[index - 1]
         const [bTime, bAvailable] = bItem
-        const diff = available - bAvailable
+        diff = bAvailable - available
         // 判断大团队
         if (diff > TEAM_MIN) {
           teamNum += diff
         }
-        // 判读增加库存
+
+        if (diff > 0) {
+          ticketNum += diff
+        }
+
         if (diff < 0) {
-          ticketAvailable += diff
+          // 判断是为补仓
+          if (Math.abs(diff) < STORE_ADD) {
+            ticketNum += diff
+          }
         }
       }
 
-      // 计算售票量
-      const ticketNum = ticketAvailable - available
       const date = moment(time, 'x').format(DATE_FORMAT)
       dates[date] = ticketNum
     })
@@ -109,9 +120,6 @@ class TicketService extends Service {
       )
       dayList.push([dateDiff, dates[_date]])
     }
-
-    const ticketNum =
-      TICKET_AVAILABLE - availableList[availableList.length - 1][1]
 
     const update = {
       local,
