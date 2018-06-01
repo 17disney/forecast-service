@@ -1,12 +1,7 @@
-# 17Disney Forecast Service
+# 17Disney 预测服务
 
-## docker
-```shell
-docker stop 17disney-forecast-service \
-&& docker rm 17disney-forecast-service \
-&& cd /app/forecast-service \
-&& docker build -t 17disney-forecast-service . \
-&& docker run -e TZ="Asia/Shanghai" -d -p 28201:80 --name 17disney-forecast-service \
---mount type=bind,source=/app/config/forecast-service,target=/app/config \
-17disney-forecast-service npm run docker
-```
+17Disney Forecast Service
+
+本服务用于迪士尼的售票量计算和预测，客流量和等候时间预测。
+
+http://www.17disney.com
