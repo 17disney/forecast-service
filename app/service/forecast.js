@@ -43,7 +43,7 @@ class ForecastService extends Service {
       ticketFT.forEach(list => {
         const ticketNumFT = list[FT_DAYS - 1][1]
         const rate = Math.round(
-          100 - Math.abs(ticketNumFT - ticketNum) / ticketNum * 100
+          100 - (Math.abs(ticketNumFT - ticketNum) / ticketNum) * 100
         )
 
         forecast.push({
@@ -274,7 +274,7 @@ class ForecastService extends Service {
 
       const flowMaxFT = this.mathFlow(ticketNum)
       const rate = Math.round(
-        100 - Math.abs(flowMaxFT - flowMax) / flowMax * 100
+        100 - (Math.abs(flowMaxFT - flowMax) / flowMax) * 100
       )
 
       item.ticketNum = ticketNum
@@ -290,18 +290,28 @@ class ForecastService extends Service {
     const TICKET_RANK = 6
     const STAGE1 = 5000
     const STAGE2 = 8000
+    const STAGE3 = 15000
 
+    // 最小客流量
     let flowMaxFT = 18000
+
     if (ticketNum < STAGE1) {
       flowMaxFT += ticketNum * TICKET_RANK
     }
     if (ticketNum > STAGE1) {
-      const stage = ticketNum - STAGE1 > STAGE1 ? STAGE1 : ticketNum - STAGE1
-      flowMaxFT += stage * TICKET_RANK / 0.7
+      // 如果超出 STAGE1 则取 STAGE1
+      const stage = ticketNum > STAGE1 ? STAGE1 : ticketNum - STAGE1
+      flowMaxFT += stage * TICKET_RANK * 0.5
     }
 
     if (ticketNum > STAGE2) {
-      flowMaxFT += (ticketNum - STAGE2) * TICKET_RANK * 0.1
+      const stage = ticketNum > STAGE2 ? STAGE2 : ticketNum - STAGE2
+      flowMaxFT += stage * TICKET_RANK * 0.3
+    }
+
+    if (ticketNum > STAGE3) {
+      const stage = ticketNum - STAGE3
+      flowMaxFT += stage * TICKET_RANK * 0.1
     }
 
     return parseInt(flowMaxFT)

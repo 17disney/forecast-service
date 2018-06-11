@@ -22,8 +22,8 @@ module.exports = app => {
   router.get('/forecast/report/:local', controller.forecast.report)
 
   // 手动更新
-  // router.get('/update/forecast/:local', controller.forecast.create)
-  // router.get('/update/tickets/:local/:date', controller.ticket.forecastDate)
+  router.get('/update/forecast/:local', controller.forecast.create)
+  router.get('/update/tickets/:local/:date', controller.ticket.forecastDate)
 
   // router.put('/park/:local/:date', controller.park.update)
   // router.get('/wait-forecast/attractions/:local/:id', controller.forecast.attractionsId)
