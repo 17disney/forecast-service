@@ -365,7 +365,6 @@ class ForecastService extends Service {
 
   async getAttraction(local, st, et) {
     const { ctx } = this
-    // let weaRankData = await ctx.service.weather.getDateRangesRank(st, et)
     let parkData = await ctx.service.park.getDateRange(local, st, et)
     let attList = await Waittimes.home(local, '2018-04-27')
 
