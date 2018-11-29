@@ -87,9 +87,7 @@ class ForecastService extends Service {
       const regression = new SLR(inputs, outputs)
 
       slope = parseInt(regression.slope)
-      if (slope > 2000) {
-        slope = 2000
-      }
+      if (slope > 2000) slope = 2000
 
       for (let i = pos + 1; i <= -2; i++) {
         ticketNum += slope * (1 + weaRank * 0.1 + dayRank * 0.1)
@@ -161,8 +159,6 @@ class ForecastService extends Service {
 
       // 去除当天售票量
       dList = dList.slice(0, dList.length - 1)
-
-      const ticketFT = []
 
       const dayListFT = this.mathTicket(dList, weaRank, dayRank)
 
@@ -298,13 +294,13 @@ class ForecastService extends Service {
       flowMaxFT += ticketNum * TICKET_RANK
     }
     if (ticketNum > STAGE1) {
-      // 如果超出 STAGE1 则取 STAGE1
-      const stage = ticketNum > STAGE1 ? STAGE1 : ticketNum - STAGE1
+      // 如果超出 STAGE2 则取 STAGE1
+      const stage = ticketNum > STAGE2 ? STAGE1 : ticketNum - STAGE1
       flowMaxFT += stage * TICKET_RANK * 0.5
     }
 
     if (ticketNum > STAGE2) {
-      const stage = ticketNum > STAGE2 ? STAGE2 : ticketNum - STAGE2
+      const stage = ticketNum > STAGE3 ? STAGE2 : ticketNum - STAGE2
       flowMaxFT += stage * TICKET_RANK * 0.3
     }
 
